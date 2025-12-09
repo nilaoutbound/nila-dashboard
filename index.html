@@ -1,41 +1,15 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>NILA Dashboard</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ff3366">
-
-  <!-- ✅ PWA -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon-192.png">
-  <link rel="apple-touch-icon" href="icon-180.png">
-
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-    }
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-    }
-  </style>
 </head>
-<body>
+<body style="margin:0">
 
-  <!-- 🔗 EMBED APPS SCRIPT KAMU -->
-  <iframe
-    src="https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec">
-  </iframe>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
-  </script>
+<iframe 
+  src="https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec"
+  style="border:none;width:100vw;height:100vh">
+</iframe>
 
 </body>
 </html>
