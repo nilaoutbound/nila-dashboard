@@ -1,19 +1,20 @@
+const CACHE_NAME = 'nila-dashboard-v1';
+const FILES = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
+];
+
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open('nila-v1').then(cache =>
-      cache.addAll([
-        './',
-        './index.html',
-        './manifest.json',
-        './nila-192.png',
-        './nila-512.png'
-      ])
-    )
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES))
   );
 });
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request))
+    caches.match(e.request).then(r => r || fetch(e.request))
   );
 });
