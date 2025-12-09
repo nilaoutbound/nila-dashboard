@@ -4,31 +4,77 @@
   <meta charset="UTF-8">
   <title>NILA Dashboard</title>
 
+  <!-- ✅ PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ff3366">
 
-  <!-- ICON -->
+  <!-- ✅ ICON (WAJIB DARI ROOT GITHUB) -->
   <link rel="icon" href="nila-192.png">
   <link rel="apple-touch-icon" href="nila-180.png">
+
+  <!-- ✅ STYLE (gabungan style.html) -->
+  <style>
+    body { margin: 0; font-family: sans-serif; background:#2c2f33; color:#f0f0f0 }
+    .main-container { display:flex; height:100vh }
+    .nav-menu { width:150px; background:#1e1e1e }
+    .nav-item { padding:10px; cursor:pointer }
+    .nav-item.active { background:#3e3e3e; color:#ff3366 }
+    .content-area { flex:1; padding:15px }
+    .logo-sidebar { max-width:100%; margin:10px auto; display:block }
+  </style>
 </head>
 
 <body>
-  <h2>NILA Dashboard</h2>
-  <button onclick="login()">Login</button>
 
-  <script>
-    const API = 'https://script.google.com/macros/s/ID_SCRIPT_KAMU/exec';
+<!-- ✅ LOGIN -->
+<div id="loginModal" style="
+  position:fixed;inset:0;background:#000c;
+  display:flex;justify-content:center;align-items:center;
+  z-index:9999">
+  <div style="background:#1a0000;padding:30px;border-radius:12px">
+    <h3>Login NILA</h3>
+    <input id="user" placeholder="Username"><br><br>
+    <input id="pass" type="password" placeholder="Password"><br><br>
+    <button onclick="login()">Login</button>
+    <div id="msg"></div>
+  </div>
+</div>
 
-    function login() {
-      fetch(API + '?action=login&user=admin&pass=123')
-        .then(r => r.json())
-        .then(d => alert(JSON.stringify(d)));
-    }
+<!-- ✅ MAIN -->
+<div class="main-container" id="app" style="display:none">
+  <div class="nav-menu">
+    <img src="nila-192.png" class="logo-sidebar">
+    <div class="nav-item active">DASHBOARD</div>
+  </div>
+  <div class="content-area" id="content">
+    Selamat datang di Dashboard NILA
+  </div>
+</div>
 
-    // SERVICE WORKER
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
-  </script>
+<script>
+const API = 'https://script.google.com/macros/s/ID_SCRIPT_KAMU/exec';
+
+function login() {
+  const u = user.value;
+  const p = pass.value;
+
+  fetch(`${API}?action=login&user=${u}&pass=${p}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.status === 'success') {
+        loginModal.style.display = 'none';
+        app.style.display = 'flex';
+      } else {
+        msg.innerText = d.message;
+      }
+    });
+}
+
+/* ✅ SERVICE WORKER */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+
 </body>
 </html>
