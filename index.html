@@ -1,80 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <title>NILA Dashboard</title>
 
-  <!-- ✅ PWA -->
-  <link rel="manifest" href="manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ff3366">
 
-  <!-- ✅ ICON (WAJIB DARI ROOT GITHUB) -->
-  <link rel="icon" href="nila-192.png">
-  <link rel="apple-touch-icon" href="nila-180.png">
+  <!-- ✅ PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-180.png">
 
-  <!-- ✅ STYLE (gabungan style.html) -->
   <style>
-    body { margin: 0; font-family: sans-serif; background:#2c2f33; color:#f0f0f0 }
-    .main-container { display:flex; height:100vh }
-    .nav-menu { width:150px; background:#1e1e1e }
-    .nav-item { padding:10px; cursor:pointer }
-    .nav-item.active { background:#3e3e3e; color:#ff3366 }
-    .content-area { flex:1; padding:15px }
-    .logo-sidebar { max-width:100%; margin:10px auto; display:block }
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
-
 <body>
 
-<!-- ✅ LOGIN -->
-<div id="loginModal" style="
-  position:fixed;inset:0;background:#000c;
-  display:flex;justify-content:center;align-items:center;
-  z-index:9999">
-  <div style="background:#1a0000;padding:30px;border-radius:12px">
-    <h3>Login NILA</h3>
-    <input id="user" placeholder="Username"><br><br>
-    <input id="pass" type="password" placeholder="Password"><br><br>
-    <button onclick="login()">Login</button>
-    <div id="msg"></div>
-  </div>
-</div>
+  <!-- 🔗 EMBED APPS SCRIPT KAMU -->
+  <iframe
+    src="PASTE_URL_WEBAPP_APPS_SCRIPT_KAMU_DI_SINI">
+  </iframe>
 
-<!-- ✅ MAIN -->
-<div class="main-container" id="app" style="display:none">
-  <div class="nav-menu">
-    <img src="nila-192.png" class="logo-sidebar">
-    <div class="nav-item active">DASHBOARD</div>
-  </div>
-  <div class="content-area" id="content">
-    Selamat datang di Dashboard NILA
-  </div>
-</div>
-
-<script>
-const API = 'https://script.google.com/macros/s/ID_SCRIPT_KAMU/exec';
-
-function login() {
-  const u = user.value;
-  const p = pass.value;
-
-  fetch(`${API}?action=login&user=${u}&pass=${p}`)
-    .then(r => r.json())
-    .then(d => {
-      if (d.status === 'success') {
-        loginModal.style.display = 'none';
-        app.style.display = 'flex';
-      } else {
-        msg.innerText = d.message;
-      }
-    });
-}
-
-/* ✅ SERVICE WORKER */
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 
 </body>
 </html>
