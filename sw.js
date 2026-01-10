@@ -1,48 +1,33 @@
-const CACHE_NAME = 'nila-dashboard-v1';
-const FILES = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
-];
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec";
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES))
-  );
+// Cek data setiap 5 menit (Android biasanya membatasi jika terlalu sering)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'cek-data-nila') {
+    event.waitUntil(ambilDataBaru());
+  }
 });
 
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
-  );
-});
-const CACHE_NAME = 'nila-dashboard-v1';
-const FILES = ['./', './index.html', './manifest.json'];
+// Fungsi untuk mengambil data dari Google Script
+async function ambilDataBaru() {
+  try {
+    const response = await fetch(SCRIPT_URL + "?action=checkUpdate");
+    const data = await response.json();
+    
+    if (data.status === "ada_perubahan") {
+      self.registration.showNotification('DASHBOARD NILA', {
+        body: '⚠️ Ada perubahan data kritis! Klik untuk cek.',
+        icon: 'nila-192.png',
+        vibrate: [200, 100, 200]
+      });
+    }
+  } catch (err) {
+    console.error("Gagal cek data:", err);
+  }
+}
 
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES)));
-});
-
-// BAGIAN PENTING: Menangkap Sinyal Notifikasi
-self.addEventListener('push', function(event) {
-  let data = { title: 'UPDATE DATA NILA', body: 'Cek Dashboard sekarang!' };
-  if (event.data) { data = event.data.json(); }
-
-  const options = {
-    body: data.body,
-    icon: 'nila-192.png',
-    badge: 'nila-192.png',
-    vibrate: [200, 100, 200],
-    data: { url: 'https://nilaoutbound.github.io' }
-  };
-
-  event.waitUntil(self.registration.showNotification(data.title, options));
-});
-
-// Klik notif langsung buka Web
-self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
-  event.waitUntil(clients.openWindow(event.notification.data.url));
+// Tambahkan pendengar pesan jika ingin dipicu manual dari web
+self.addEventListener('message', (event) => {
+  if (event.data === 'cekSekarang') {
+    ambilDataBaru();
+  }
 });
