@@ -27,27 +27,51 @@
 </iframe>
 
 <script>
-  // Daftarkan Service Worker
+  // 1. Daftarkan Service Worker & Aktifkan Pemicu Otomatis
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log("SW Terdaftar"));
+      .then((registration) => {
+        console.log("SW Terdaftar");
+
+        // Meminta sistem Android/Chrome untuk mengizinkan pengecekan berkala (jika didukung)
+        if ('periodicSync' in registration) {
+          registration.periodicSync.register('cek-data-nila', {
+            minInterval: 15 * 60 * 1000, // Cek setiap 15 menit
+          }).catch(() => console.log("Periodic Sync dibatasi sistem, mengandalkan pengecekan manual."));
+        }
+
+        // Jalankan pengecekan pertama kali saat web dibuka
+        navigator.serviceWorker.ready.then(reg => {
+          if (reg.active) reg.active.postMessage('cekSekarang');
+        });
+      });
   }
 
+  // 2. Fungsi Tombol Izin Notifikasi
   function mintaIzin() {
     Notification.requestPermission().then(perm => {
       if (perm === 'granted') {
-        alert("Notifikasi Aktif! Anda akan menerima update data.");
+        alert("Notifikasi Aktif! Dashboard akan memantau perubahan data.");
         document.getElementById('notif-btn').style.display = 'none';
         
-        // Tes kirim notif lokal
+        // Tes kirim notif perkenalan
         navigator.serviceWorker.ready.then(reg => {
           reg.showNotification('NILA Dashboard', {
-            body: 'Notifikasi berhasil diaktifkan!',
+            body: 'Satpam Dashboard sudah aktif memantau jadwal!',
             icon: 'nila-192.png'
           });
+          // Langsung suruh satpam cek data ke Google Sheets
+          if (reg.active) reg.active.postMessage('cekSekarang');
         });
+      } else {
+        alert("Izin ditolak. Anda tidak akan menerima notifikasi update.");
       }
     });
+  }
+
+  // 3. Menghilangkan tombol jika izin sudah diberikan sebelumnya
+  if (Notification.permission === 'granted') {
+    document.getElementById('notif-btn').style.display = 'none';
   }
 </script>
 </body>
