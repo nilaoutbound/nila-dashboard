@@ -4,12 +4,12 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compa
 
 // Tempelkan firebaseConfig yang kamu simpan tadi di sini
 const firebaseConfig = {
-  apiKey: "ISI_API_KEY_KAMU",
-  authDomain: "ISI_AUTH_DOMAIN_KAMU",
-  projectId: "ISI_PROJECT_ID_KAMU",
-  storageBucket: "ISI_STORAGE_BUCKET_KAMU",
-  messagingSenderId: "ISI_SENDER_ID_KAMU",
-  appId: "ISI_APP_ID_KAMU"
+  apiKey: "AIzaSyCrcNRqSRbMxl_1N-Bgy2bkprafEoBtG18",
+  authDomain: "nila-outbound-notif.firebaseapp.com",
+  projectId: "nila-outbound-notif",
+  storageBucket: "nila-outbound-notif.firebasestorage.app",
+  messagingSenderId: "865192980770",
+  appId: "1:865192980770:web:32615234211e67c174b57b"
 };
 
 // Inisialisasi Firebase
