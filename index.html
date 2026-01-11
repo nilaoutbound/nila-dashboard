@@ -10,17 +10,36 @@
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
 
-  <style>
-    body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; background: #000; }
-    iframe { border: none; width: 100%; height: 100vh; }
-    #notif-btn {
-      position: fixed; bottom: 20px; right: 20px;
-      background: #00f2ff; color: #000; border: none;
-      padding: 12px 20px; border-radius: 50px; cursor: pointer;
-      box-shadow: 0 0 15px rgba(0, 242, 255, 0.5); z-index: 999;
-      font-weight: bold; font-family: sans-serif;
-    }
-  </style>
+<style>
+  body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
+  
+  /* Iframe dibuat sedikit lebih pendek agar tidak menutupi area tombol jika perlu */
+  iframe { 
+    border: none; 
+    width: 100%; 
+    height: 100vh; 
+    display: block;
+  }
+
+  #notif-btn {
+    position: fixed; 
+    bottom: 30px; /* Jarak dari bawah */
+    left: 50%; /* Posisikan di tengah horizontal */
+    transform: translateX(-50%); /* Sempurnakan posisi tengah */
+    background: #00f2ff; 
+    color: #000; 
+    border: none;
+    padding: 15px 25px; 
+    border-radius: 50px; 
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.8); 
+    z-index: 99999 !important; /* Angka super besar agar di atas iframe */
+    font-weight: bold; 
+    font-family: sans-serif;
+    display: block !important; /* Paksa tampil */
+    min-width: 200px;
+  }
+</style>
 </head>
 <body>
 
