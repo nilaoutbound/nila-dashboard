@@ -80,9 +80,10 @@
       if (perm === 'granted') {
         
         // Ambil Token dari Firebase
-        messaging.getToken({ 
-          vapidKey: 'KUNCI_VAPID_PANJANG_YANG_KAMU_GENERATE_TADI' 
-        }).then((currentToken) => {
+// Ambil Token dari Firebase
+messaging.getToken({ 
+  vapidKey: 'BOaWErPXJnKRKSOgnyBg64X0YYdjF4i4PLbE_cNXyKa1UDKfyuRQaWOfWdXUwB3xgwPIuNiIRlsFwul9x6ayxPQ' 
+}).then((currentToken) => {
           if (currentToken) {
             console.log("Token Berhasil Didapat:", currentToken);
             
