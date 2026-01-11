@@ -1,45 +1,99 @@
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NILA Dashboard</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff3366">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+
+  <style>
+    body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; background: #000; }
+    iframe { border: none; width: 100%; height: 100vh; }
+    #notif-btn {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #00f2ff; color: #000; border: none;
+      padding: 12px 20px; border-radius: 50px; cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 242, 255, 0.5); z-index: 999;
+      font-weight: bold; font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<button id="notif-btn" onclick="mintaIzin()">🔔 AKTIFKAN NOTIFIKASI</button>
+
+<iframe 
+  id="nila-frame"
+  src="https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec"
+  allow="geolocation; microphone; camera">
+</iframe>
 
 <script>
-  // Konfigurasi Firebase yang kamu copy tadi
+  // 1. KONFIGURASI FIREBASE (PASTIKAN ISI SESUAI NOTEPAD KAMU)
   const firebaseConfig = {
-    apiKey: "AIzaSy...",
-    // ... isi sisanya
+    apiKey: "AIzaSyCrcNRqSRbMxl_1N-Bgy2bkprafEoBtG18",
+    authDomain: "nila-outbound-notif.firebaseapp.com",
+    projectId: "nila-outbound-notif",
+    storageBucket: "nila-outbound-notif.firebasestorage.app",
+    messagingSenderId: "865192980770",
+    appId: "1:865192980770:web:32615234211e67c174b57b"
   };
+
+  // Inisialisasi Firebase
   firebase.initializeApp(firebaseConfig);
   const messaging = firebase.messaging();
 
-  // Daftarkan Service Worker Baru (firebase-messaging-sw.js)
+  // 2. DAFTARKAN SERVICE WORKER (SATUPAM BARU)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./firebase-messaging-sw.js')
       .then((registration) => {
-        console.log("Firebase SW Terdaftar");
+        console.log("Firebase Service Worker terdaftar!");
       });
   }
 
+  // 3. FUNGSI MINTA IZIN & AMBIL TOKEN
   function mintaIzin() {
     Notification.requestPermission().then(perm => {
       if (perm === 'granted') {
-        // Ambil Token untuk dikirim ke Google Sheets
+        
+        // Ambil Token dari Firebase
         messaging.getToken({ 
-          vapidKey: 'KUNCI_VAPID_YANG_KAMU_GENERATE_TADI' 
+          vapidKey: 'KUNCI_VAPID_PANJANG_YANG_KAMU_GENERATE_TADI' 
         }).then((currentToken) => {
           if (currentToken) {
-            console.log("Token ditemukan:", currentToken);
+            console.log("Token Berhasil Didapat:", currentToken);
             
-            // KIRIM TOKEN KE IFRAME (Agar Apps Script bisa menyimpannya)
-            const iframe = document.querySelector('iframe');
-            iframe.contentWindow.postMessage({
-              type: 'SIMPAN_TOKEN',
-              token: currentToken
-            }, '*');
+            // KIRIM TOKEN KE APPS SCRIPT MELALUI URL PARAMETER (Teknik Paling Aman)
+            const iframe = document.getElementById('nila-frame');
+            const baseUrl = "https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec";
+            
+            // Refresh iframe dengan membawa token
+            iframe.src = baseUrl + "?token=" + currentToken;
 
-            alert("Notifikasi Push Aktif!");
+            alert("SUKSES! Notifikasi Nila Outbound Aktif.");
             document.getElementById('notif-btn').style.display = 'none';
+          } else {
+            alert("Gagal mendapatkan Token. Coba refresh halaman.");
           }
+        }).catch((err) => {
+          console.log("Error saat ambil token:", err);
         });
+
+      } else {
+        alert("Izin notifikasi ditolak oleh pengguna.");
       }
     });
   }
+
+  // Sembunyikan tombol jika sudah pernah dapet izin
+  if (Notification.permission === 'granted') {
+    document.getElementById('notif-btn').style.display = 'none';
+  }
 </script>
+
+</body>
+</html>
