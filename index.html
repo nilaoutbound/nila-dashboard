@@ -5,54 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>NILA Dashboard</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ff3366">
   
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
 
-<style>
-  body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
-  
-  /* Iframe dibuat sedikit lebih pendek agar tidak menutupi area tombol jika perlu */
-  iframe { 
-    border: none; 
-    width: 100%; 
-    height: 100vh; 
-    display: block;
-  }
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; font-family: sans-serif; }
+    
+    /* Area Utama Dashboard */
+    .container { position: relative; width: 100%; height: 100vh; overflow: hidden; }
 
-  #notif-btn {
-    position: fixed; 
-    bottom: 30px; /* Jarak dari bawah */
-    left: 50%; /* Posisikan di tengah horizontal */
-    transform: translateX(-50%); /* Sempurnakan posisi tengah */
-    background: #00f2ff; 
-    color: #000; 
-    border: none;
-    padding: 15px 25px; 
-    border-radius: 50px; 
-    cursor: pointer;
-    box-shadow: 0 0 20px rgba(0, 242, 255, 0.8); 
-    z-index: 99999 !important; /* Angka super besar agar di atas iframe */
-    font-weight: bold; 
-    font-family: sans-serif;
-    display: block !important; /* Paksa tampil */
-    min-width: 200px;
-  }
-</style>
+    iframe { border: none; width: 100%; height: 100%; display: block; }
+
+    /* Tombol Melayang - Dibuat sangat mencolok */
+    #notif-btn {
+      position: absolute; 
+      bottom: 80px; /* Agak naik supaya tidak kena navigasi HP */
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(45deg, #00f2ff, #0066ff);
+      color: white;
+      border: none;
+      padding: 18px 30px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 10px 25px rgba(0, 242, 255, 0.6);
+      z-index: 99999999 !important; /* Maksimal */
+      cursor: pointer;
+      display: block; /* Selalu muncul untuk tes */
+      width: 80%; /* Lebar di HP */
+      max-width: 300px;
+    }
+  </style>
 </head>
 <body>
 
-<button id="notif-btn" onclick="mintaIzin()">🔔 AKTIFKAN NOTIFIKASI</button>
+<div class="container">
+  <button id="notif-btn" onclick="mintaIzin()">🔔 AKTIFKAN NOTIFIKASI</button>
 
-<iframe 
-  id="nila-frame"
-  src="https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec"
-  allow="geolocation; microphone; camera">
-</iframe>
+  <iframe 
+    id="nila-frame"
+    src="https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec"
+    allow="geolocation; microphone; camera">
+  </iframe>
+</div>
 
 <script>
-  // 1. KONFIGURASI FIREBASE (PASTIKAN ISI SESUAI NOTEPAD KAMU)
+  // 1. KONFIGURASI FIREBASE
   const firebaseConfig = {
     apiKey: "AIzaSyCrcNRqSRbMxl_1N-Bgy2bkprafEoBtG18",
     authDomain: "nila-outbound-notif.firebaseapp.com",
@@ -62,57 +62,45 @@
     appId: "1:865192980770:web:32615234211e67c174b57b"
   };
 
-  // Inisialisasi Firebase
   firebase.initializeApp(firebaseConfig);
   const messaging = firebase.messaging();
 
-  // 2. DAFTARKAN SERVICE WORKER (SATUPAM BARU)
+  // 2. DAFTARKAN SERVICE WORKER
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./firebase-messaging-sw.js?v=1')
+    // Gunakan v= acak untuk buang cache browser
+    navigator.serviceWorker.register('./firebase-messaging-sw.js?v=' + Date.now())
       .then((registration) => {
-        console.log("Firebase Service Worker terdaftar!");
-      });
+        console.log("Firebase Service Worker Aktif!");
+      }).catch(err => console.log("SW Gagal:", err));
   }
 
-  // 3. FUNGSI MINTA IZIN & AMBIL TOKEN
+  // 3. FUNGSI MINTA IZIN
   function mintaIzin() {
+    console.log("Tombol diklik, meminta izin...");
     Notification.requestPermission().then(perm => {
       if (perm === 'granted') {
-        
-        // Ambil Token dari Firebase
-// Ambil Token dari Firebase
-messaging.getToken({ 
-  vapidKey: 'BOaWErPXJnKRKSOgnyBg64X0YYdjF4i4PLbE_cNXyKa1UDKfyuRQaWOfWdXUwB3xgwPIuNiIRlsFwul9x6ayxPQ' 
-}).then((currentToken) => {
+        messaging.getToken({ 
+          vapidKey: 'BOaWErPXJnKRKSOgnyBg64X0YYdjF4i4PLbE_cNXyKa1UDKfyuRQaWOfWdXUwB3xgwPIuNiIRlsFwul9x6ayxPQ' 
+        }).then((currentToken) => {
           if (currentToken) {
-            console.log("Token Berhasil Didapat:", currentToken);
-            
-            // KIRIM TOKEN KE APPS SCRIPT MELALUI URL PARAMETER (Teknik Paling Aman)
-            const iframe = document.getElementById('nila-frame');
             const baseUrl = "https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec";
             
-            // Refresh iframe dengan membawa token
-            iframe.src = baseUrl + "?token=" + currentToken;
+            // Kirim token ke Apps Script
+            const finalUrl = baseUrl + "?token=" + currentToken;
+            document.getElementById('nila-frame').src = finalUrl;
 
-            alert("SUKSES! Notifikasi Nila Outbound Aktif.");
+            alert("SUKSES! Notifikasi Aktif.");
             document.getElementById('notif-btn').style.display = 'none';
-          } else {
-            alert("Gagal mendapatkan Token. Coba refresh halaman.");
           }
         }).catch((err) => {
-          console.log("Error saat ambil token:", err);
+          console.log("Error Token:", err);
+          alert("Gagal ambil token. Cek koneksi.");
         });
-
       } else {
-        alert("Izin notifikasi ditolak oleh pengguna.");
+        alert("Izin ditolak. Silakan aktifkan manual di setelan browser.");
       }
     });
   }
-
-  // Sembunyikan tombol jika sudah pernah dapet izin
-  //if (Notification.permission === 'granted') {
-   // document.getElementById('notif-btn').style.display = 'none';
-  //}
 </script>
 
 </body>
