@@ -68,7 +68,7 @@
 
   // 2. DAFTARKAN SERVICE WORKER (SATUPAM BARU)
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./firebase-messaging-sw.js')
+    navigator.serviceWorker.register('./firebase-messaging-sw.js?v=1')
       .then((registration) => {
         console.log("Firebase Service Worker terdaftar!");
       });
