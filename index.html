@@ -1,78 +1,45 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NILA Dashboard</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ff3366">
-  <style>
-    body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
-    iframe { border: none; width: 100%; height: 100vh; }
-    #notif-btn {
-      position: fixed; bottom: 20px; right: 20px;
-      background: #ff3366; color: white; border: none;
-      padding: 10px 20px; border-radius: 50px; cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 999;
-    }
-  </style>
-</head>
-<body>
-
-<button id="notif-btn" onclick="mintaIzin()">🔔 Aktifkan Notif</button>
-
-<iframe 
-  src="https://script.google.com/macros/s/AKfycbzdo0SPq3qGRLzliwtTaLu8hQQKdSv-N7QXAZn_3h71gKNdVkz2uNz7bOyajRbAQlJI/exec"
-  allow="geolocation; microphone; camera">
-</iframe>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
 
 <script>
-  // 1. Daftarkan Service Worker & Aktifkan Pemicu Otomatis
+  // Konfigurasi Firebase yang kamu copy tadi
+  const firebaseConfig = {
+    apiKey: "AIzaSy...",
+    // ... isi sisanya
+  };
+  firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging();
+
+  // Daftarkan Service Worker Baru (firebase-messaging-sw.js)
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
+    navigator.serviceWorker.register('./firebase-messaging-sw.js')
       .then((registration) => {
-        console.log("SW Terdaftar");
-
-        // Meminta sistem Android/Chrome untuk mengizinkan pengecekan berkala (jika didukung)
-        if ('periodicSync' in registration) {
-          registration.periodicSync.register('cek-data-nila', {
-            minInterval: 15 * 60 * 1000, // Cek setiap 15 menit
-          }).catch(() => console.log("Periodic Sync dibatasi sistem, mengandalkan pengecekan manual."));
-        }
-
-        // Jalankan pengecekan pertama kali saat web dibuka
-        navigator.serviceWorker.ready.then(reg => {
-          if (reg.active) reg.active.postMessage('cekSekarang');
-        });
+        console.log("Firebase SW Terdaftar");
       });
   }
 
-  // 2. Fungsi Tombol Izin Notifikasi
   function mintaIzin() {
     Notification.requestPermission().then(perm => {
       if (perm === 'granted') {
-        alert("Notifikasi Aktif! Dashboard akan memantau perubahan data.");
-        document.getElementById('notif-btn').style.display = 'none';
-        
-        // Tes kirim notif perkenalan
-        navigator.serviceWorker.ready.then(reg => {
-          reg.showNotification('NILA Dashboard', {
-            body: 'Satpam Dashboard sudah aktif memantau jadwal!',
-            icon: 'nila-192.png'
-          });
-          // Langsung suruh satpam cek data ke Google Sheets
-          if (reg.active) reg.active.postMessage('cekSekarang');
+        // Ambil Token untuk dikirim ke Google Sheets
+        messaging.getToken({ 
+          vapidKey: 'KUNCI_VAPID_YANG_KAMU_GENERATE_TADI' 
+        }).then((currentToken) => {
+          if (currentToken) {
+            console.log("Token ditemukan:", currentToken);
+            
+            // KIRIM TOKEN KE IFRAME (Agar Apps Script bisa menyimpannya)
+            const iframe = document.querySelector('iframe');
+            iframe.contentWindow.postMessage({
+              type: 'SIMPAN_TOKEN',
+              token: currentToken
+            }, '*');
+
+            alert("Notifikasi Push Aktif!");
+            document.getElementById('notif-btn').style.display = 'none';
+          }
         });
-      } else {
-        alert("Izin ditolak. Anda tidak akan menerima notifikasi update.");
       }
     });
   }
-
-  // 3. Menghilangkan tombol jika izin sudah diberikan sebelumnya
-  if (Notification.permission === 'granted') {
-    document.getElementById('notif-btn').style.display = 'none';
-  }
 </script>
-</body>
-</html>
